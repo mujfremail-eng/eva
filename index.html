@@ -139,8 +139,9 @@
 </div>
 
 <script>
-    const GROQ_API_KEY = "AIzaSyDRBTz4UzzcfeDxxYQotVasg_XVAp6CkSs"; // Začíná na gsk_
-
+    async function poslatDoAI(otazka) {
+    const GOOGLE_API_KEY = "AIzaSyDRBTz4UzzcfeDxxYQotVasg_XVAp6CkSs";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_API_KEY}`;
     const btn = document.getElementById('mikrofonBtn');
     const stav = document.getElementById('stav');
     const textOdpovedi = document.getElementById('textOdpovedi');
@@ -188,33 +189,23 @@
         textOdpovedi.style.display = "block";
         textOdpovedi.innerText = "POČKEJTE PROSÍM...";
 
-        try {
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${GROQ_API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [
-                        {
-                            role: "system",
-                            content: `Jsi seriózní seniorní a laskavý český asistent pro Evu . 
-                            Mluv slušně, vyjmečně používej vtipy, které budou v kaptegorii vtipů se slovy.  
-                            Odpovídej stručně, česky a v souladu s českými gramatickými pravidly(speciálně skloňování).
-                            Vykej všem uživatelům.Když se tě někdo zeptá jestli si ukládáš informace z konverzací, řekni že ne.
-                            Nekonči žádnou zprávu otázkou.
-                            Popis uživatele: Je to starší dáma která je praktická věcná a zajímá se o nové technologie. je pokroková a a ve svych názorech na svět je konzervativní.`
-                        },
-                        {
-                            role: "user", 
-                            content: otazka
-                        }
-                    ]
-                })
-            });
-
+try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `Jsi seriózní a laskavý český asistent pro paní Libuši. 
+                        Mluv slušně, vykej a oslovuj ji Libuško nebo Líbo. 
+                        Tady je tvůj kontext: Její táta byl kontrabasista, ona zpívala ve sboru. 
+                        Zná rodinu Angerových a Mořice Angera. Synové jsou Martin a Pavel.
+                        Odpovídej stručně, maximálně 3 věty. Nepoužívej velká písmena (Caps Lock). 
+                        Otázka od Libušky: ${otazka}`
+                    }]
+                }]
+            })
+        });
         const data = await response.json();
             const aiText = data.choices[0].message.content; // Odstraněno .toUpperCase()
             textOdpovedi.innerText = aiText;
@@ -261,3 +252,4 @@
 </body>
 
 </html>
+
